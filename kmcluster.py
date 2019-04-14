@@ -115,7 +115,7 @@ if __name__ == "__main__":
         countrys.append([country[r][1] for r in cluster[i]])
 
     print("Cosine SSE = " + str(get_sse(nonempty_clusters, values,c.cosine)))
-    output(country,"country_clus.json")
+    output(countrys,"country_clus.json")
     generate(cluster,values)
     #cluster = c.kcluster(values, distance=c.euclidean, k=num_clusters)
     #nonempty_clusters = []
