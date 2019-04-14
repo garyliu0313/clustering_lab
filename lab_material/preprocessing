@@ -1,0 +1,57 @@
+
+import sys
+sys.path.append("..")
+
+data = []
+missing_values = []
+avgvalue = [0,0,0,0,0,0]
+def readfile(file_name):
+    f = open(file_name)
+    count = 0
+    for line in f:
+        if count == 0: count+=1
+        else:
+            p = line.rstrip().split(",")
+            if "" in p:
+                missing_values.append(count)
+            data.append(p)
+            count += 1
+    f.close()
+
+def outputfile(file_name):
+    f = open(file_name,"w")
+    for line in data:
+        for i in range(len(line)):
+            if i == len(line)-1:
+                f.write(line[i]+('\n'))
+            else:
+                f.write(str(line[i])+',')
+    f.close()
+
+def calculate_average(inputdata):
+    count = [0, 0, 0, 0, 0, 0]
+    total = [0, 0, 0, 0, 0, 0]
+
+    for line in inputdata:
+        for i in range(2,8):
+            if line[i] == "":
+                continue
+            total[i-2] += int(line[i])
+            count[i-2] += 1
+    for i in range(6):
+        avgvalue[i]= round(total[i]/count[i])
+
+def fill_data(country):
+    for i in range(6):
+        if country[i+2] == "":
+            country[i+2] = avgvalue[i]
+
+
+if __name__ == "__main__":
+    readfile("dataset.csv")
+    calculate_average(data)
+    for i in missing_values:
+        fill_data(data[i-1])
+    outputfile("processed_data.csv")
+
+

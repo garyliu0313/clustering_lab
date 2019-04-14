@@ -116,37 +116,41 @@ class bicluster:
         self.distance=distance
 
 
-def hcluster(rows,distance=euclidean):
+def hcluster(rows,distance=euclidean, inter_dis = 'cen'):
     distances={}
     currentclustid=-1
 
     # Clusters are initially just the rows
-    clust=[bicluster(rows[i],id=i) for i in range(len(rows))]
+    clust=[bicluster([rows[i]],id=i) for i in range(len(rows))]
 
     while len(clust)>1:
-        lowestpair=(0,1)
-        closest=distance(clust[0].vec,clust[1].vec)
-
+        lowestpair=(0,0)
+        closest = float("inf")
         # loop through every pair looking for the smallest distance
         for i in range(len(clust)):
             for j in range(i+1,len(clust)):
                 # distances is the cache of distance calculations
                 if (clust[i].id,clust[j].id) not in distances:
-                    distances[(clust[i].id,clust[j].id)]=distance(clust[i].vec,clust[j].vec)
-
-                d=distances[(clust[i].id,clust[j].id)]
+                    if inter_dis == "min":
+                        distances[(clust[i].id,clust[j].id)]=min(distance(c1, c2) for c1 in clust[i].vec for c2 in clust[j].vec)
+                    if inter_dis == "max":
+                        distances[(clust[i].id,clust[j].id)]=max(distance(c1, c2) for c1 in clust[i].vec for c2 in clust[j].vec)
+                try:
+                    d=distances[(clust[i].id,clust[j].id)]
+                except KeyError :
+                    continue
 
                 if d<closest:
                     closest=d
                     lowestpair=(i,j)
 
-        # calculate the average of the two clusters
-        mergevec=[
-            (clust[lowestpair[0]].vec[i]+clust[lowestpair[1]].vec[i])/2.0
-                    for i in range(len(clust[0].vec))]
+        # # calculate the average of the two clusters
+        # mergevec=[
+        #     (clust[lowestpair[0]].vec[i]+clust[lowestpair[1]].vec[i])/2.0
+        #             for i in range(len(clust[0].vec))]
 
         # create the new cluster
-        newcluster=bicluster(mergevec,left=clust[lowestpair[0]],
+        newcluster=bicluster(clust[lowestpair[0]].vec+clust[lowestpair[1]].vec,left=clust[lowestpair[0]],
                              right=clust[lowestpair[1]],
                              distance=closest,id=currentclustid)
 
